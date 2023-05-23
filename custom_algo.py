@@ -1,132 +1,116 @@
+# Author: Daniel Dang - Student ID: 103528453
+# Last modified: 19-04-2023
+
 from functions import *
+import time
 
 # Dijkstra algorithm
 def dijkstra(m):
     info = maze_info(m)
-    start = info["start"]    
+    if "start" in info and "goal" in info:
+        start = info["start"]    
 
-    indices = [(i, j) for i in range(m.shape[0]) for j in range(m.shape[1])]
-    unvisited = {cell:float("inf") for cell in indices}
-    unvisited[start] = 0
-    revPath = {}
+        indices = [(i, j) for i in range(m.shape[0]) for j in range(m.shape[1])]
+        unvisited = {cell:float("inf") for cell in indices}
+        unvisited[start] = 0
+        dijkPath = {}
 
-    visited = {}
-    while unvisited:
-        currCell = min(unvisited, key=unvisited.get)
-        visited[currCell] = unvisited[currCell]
-        if currCell in info["goal"]:
-            break
-        for childCell in find_next(currCell, m):
-            if childCell in visited:
-                continue
-            tempDist = unvisited[currCell] + 1
-
-            if tempDist < unvisited[childCell]:
-                unvisited[childCell] = tempDist
-                revPath[childCell] = currCell
-        unvisited.pop(currCell)
-
-    goal = (0,0)
-    for c in revPath.keys():
-        if c in info["goal"]:
-            goal = c
-            break
-    fwdPath = get_fwd_path(revPath, start, goal)
-
-    return visited, fwdPath
-
-def Tremaux(m, info):
-    start = info["start"]
-    goal = info["goal"][0]
-    explored = {start: 1}
-    tremaux_path = {start: None}
-    currCell = start
-
-    while currCell != goal:
-        unexplored = []
-        for childCell in find_next(currCell, m):
-            if childCell not in explored:
-                unexplored.append(childCell)
-        if len(unexplored) > 0:
-            # Move to an unexplored cell
-            nextCell = unexplored.pop(0)
-            explored[nextCell] = 1
-            tremaux_path[nextCell] = currCell
-            currCell = nextCell
-        else:
-            # Backtrack to a cell with unexplored neighbors
-            backtrack = None
-            for childCell in find_next(currCell, m):
-                if childCell in explored and explored[childCell] == 1:
-                    if len(find_next(childCell, m)) > 1:
-                        if backtrack is None or explored[childCell] < explored[backtrack]:
-                            backtrack = childCell
-            if backtrack is None:
+        visited = {}
+        while unvisited:
+            currCell = min(unvisited, key=unvisited.get)
+            visited[currCell] = unvisited[currCell]
+            if currCell in info["goal"]:
                 break
-            currCell = backtrack
+            for childCell in find_next(currCell, m):
+                if childCell in visited:
+                    continue
+                tempDist = unvisited[currCell] + 1
 
-    # Build the path from start to goal
-    if goal in tremaux_path:
-        fwdPath = []
-        cell = goal
-        while cell is not None:
-            fwdPath.insert(0, cell)
-            cell = tremaux_path[cell]
-        return list(explored.keys()), fwdPath
-    else:
-        return list(explored.keys()), None
+                if tempDist < unvisited[childCell]:
+                    unvisited[childCell] = tempDist
+                    dijkPath[childCell] = currCell
+            unvisited.pop(currCell)
 
-
-def wall_following(m, info):
-    direction = {"forward": (-1,0), "left": (1,0), "back": (1,0), "right": (-1,0)}
-    currCell = info["start"]
-    path = []
-
-    while True:
-        if currCell in info["goal"]:
-            break
-        available_cells = find_next(currCell, m)
-        if (currCell[0]+direction["left"][0], currCell[1]+direction["left"][1]) not in available_cells:
-            if (currCell[0]+direction["forward"][0], currCell[1]+direction["forward"][1]) not in available_cells:
-                direction = RCW(direction)
-            else:
-                currCell = moveForward(direction, currCell)
-                path.append(currCell)
-                direction = {"forward": (-1,0), "left": (1,0), "back": (1,0), "right": (-1,0)}
-
+        goal = (-1,-1)
+        for c in dijkPath.keys():
+            if c in info["goal"]:
+                goal = c
+                break
+        if goal != (-1, -1):
+            fwdPath = get_fwd_path(dijkPath, start, goal)
+            return visited, fwdPath
+        
+        # no goal found
         else:
-            direction = RCCW(direction)
-            currCell = moveForward(direction, currCell)
-            path.append(currCell)
-            direction = {"forward": (-1,0), "left": (1,0), "back": (1,0), "right": (-1,0)}
+            return visited, None
 
-    return path, path
+        return visited, fwdPath
+    else:
+        print("No start or goal found")
+    return None, None
 
-def RCW(direction):
-    k = list(direction.keys())
-    v = list(direction.values())
-    v_rotated = [v[-1]] + v[:-1]
-    direction = dict(zip(k, v_rotated))
-    return direction
+def ida_star(m, timeout=5):
+    start_time = time.time()
 
+    def check_timeout():
+        return time.time() - start_time > timeout
+    
+    info = maze_info(m)
+    if "start" in info and "goal" in info:
+        start = info["start"]    
+        remaining_goals = goals_distance(info)
 
-def RCCW(direction):
-    k = list(direction.keys())
-    v = list(direction.values())
-    v_rotated = v[1:] + [v[0]]
-    direction = dict(zip(k, v_rotated))
-    return direction
+        while not remaining_goals.empty():
+            # start exploring with the closest goal first
+            goal = remaining_goals.get()[1]
 
+            def dfs(currCell, g, bound, idaPath, searchPath):
+                if check_timeout():
+                    return "TIMEOUT", idaPath, searchPath
 
-def moveForward(direction, cell):
-    return (cell[0]+direction["forward"][0], cell[1]+direction["forward"][1])
-    # if direction["forward"] == (-1,0):
-    #     return (cell[0], cell[1]+1)
-    # if direction["forward"] == "left":
-    #     return (cell[0], cell[1]-1)
-    # if direction["forward"] == "up":
-    #     return (cell[0]-1, cell[1])
-    # if direction["forward"] == "down":
-    #     return (cell[0]+1, cell[1])
+                f = g + h(currCell, goal)
+                if f > bound:
+                    return f, idaPath, searchPath
+                if currCell not in searchPath:
+                    searchPath.append(currCell)
+                if currCell == goal:
+                    return "FOUND", idaPath, searchPath
+                
+                min_cost = float("inf")
+                for childCell in find_next(currCell, m):
+                    cost, idaPath, searchPath = dfs(childCell, g + 1, bound, idaPath, searchPath)
+                    idaPath[childCell] = currCell
+                    # print(idaPath)
+                    if cost == "FOUND":
+                        return "FOUND", idaPath, searchPath
+                    if cost != "TIMEOUT":
+                        min_cost = min(min_cost, cost)
+                return min_cost, idaPath, searchPath
+                    
+            # Run IDA* algorithm
+            bound = h(start, goal)
+            idaPath = {}
+            searchPath = []
+            while True:
+                cost, idaPath, searchPath = dfs(start, 0, bound, idaPath, searchPath)
+                if cost == "FOUND":
+                    fwdPath = get_fwd_path(idaPath, start, goal)
+                    return searchPath, fwdPath
+                elif cost == float("inf"):
+                    print("infinite cost")
+                    break
+                elif cost == "TIMEOUT":
+                    print("Timeout")
+                    return None, None
+                else:
+                    bound = cost
 
+            if check_timeout():
+                print("Timeout")
+                return None, None
+
+    else:
+        print("No start or goal found")  
+    # if no available paths are found
+    return None, None
 

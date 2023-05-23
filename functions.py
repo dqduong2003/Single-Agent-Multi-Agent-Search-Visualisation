@@ -1,9 +1,16 @@
 import numpy
+from queue import PriorityQueue
 
 # return all possible adjacent cells
+# This function find_next takes two arguments - current cell and maze
+# First, it creates an empty list to store all the adjacent cells
+# Then, it checks if the adjacent cells are valid or not
+# If the adjacent cells are valid, it adds them to the list. 
+# Finally, it returns the list. 
+
 def find_next(currCell, m):
     next_coordinates = []
-    possibles = [(0,-1), (0,1), (1,0) , (-1,0)]
+    possibles = [(-1,0), (0,-1), (1,0) , (0,1)]
     for d in possibles:
         childCell = (currCell[0]+d[0], currCell[1]+d[1])
         if childCell[0] < 0 or childCell[0] >= m.shape[0] or childCell[1] < 0 or childCell[1] >= m.shape[1]:
@@ -29,14 +36,7 @@ def get_fwd_path(revPath, start, goal):
 # get the start and goal of the maze
 def maze_info(maze):
     info = {}
-    # goal = numpy.where(maze == -1)
-    # info["start"] = (goal[0][0], goal[1][0])
     info["goal"] = []
-
-    # twos = numpy.where(maze == 2)
-    # for c in twos:
-    #     info["goal"].append(tuple(c[::-1]))
-    # print(info)
     for (x, y), element in numpy.ndenumerate(maze):
         if maze[(x,y)] == -1:
             info["start"] = (x,y)
@@ -44,3 +44,19 @@ def maze_info(maze):
             info["goal"].append((x,y))
 
     return info
+
+# rank all the goals by their distance to the start cell 
+def goals_distance(info):
+    start = info["start"]    
+    goals = info["goal"]
+    distance = PriorityQueue()
+    for g in goals:
+        distance.put((h(start,g), g))
+    return distance
+
+# heuristic function
+# get the manhattan distance between 2 cells
+def h(cell1, cell2):
+    x1, y1 = cell1
+    x2, y2 = cell2
+    return abs(x1-x2) + abs(y1-y2)
