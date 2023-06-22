@@ -1,5 +1,7 @@
 # Maze Search Algorithms Visualisation
-![Screenshot](screenshots/demo.jpg)
+![Screenshot](screenshots/capture1.jpg)
+![Screenshot](screenshots/capture2.jpg)
+![Screenshot](screenshots/capture3.jpg)
 
 ## Algorithms:
 * Depth-First Search (DFS)
