@@ -1,46 +1,57 @@
-# Maze Search Algorithms Visualisation
-![Screenshot](screenshots/capture1.png)
+# Single and Multi-Agent Search Algorithms
+This repository implements several search algorithms for both single-agent and multi-agent pathfinding in grid-based environments. The algorithms are designed to solve pathfinding problems efficiently in a static environment.
 
-## Algorithms:
-* Depth-First Search (DFS)
-* Breadth-First Search (BFS)
-* A* Search
-* Greedy Best First Search (GBFS)
-* Dijkstra's Algorithm
-* Iterative Deepening A*
 
-## Instructions:
-### Console-based version
-1. Open the terminal/command prompt.
-2. Navigate to the directory where the **assign1.exe** file is located.
-3. For Windows users, use the following command in the terminal:
-   ```
-   .\assign1.exe <filename> <algorithm>
-   ```
-   Here, <filename> should be one of the files in the "mazes" folder, and <algorithm> should be one of the search algorithms: DFS, BFS, A*, GBFS, Dijkstra, or IDA*.\
-   For example:
-   ```
-   .\assign1.exe RobotNav-test.txt dfs
-   ```
-   The program will output the maze encoded by numbers, followed by the solution and the solved maze. The solution will be displayed in the following format:
-   ```
-   filename method number_of_nodes
-   path
-   ```
-Here, _number_of_nodes_ refers to the number of nodes in the search tree, and _path_ is a sequence of moves that goes from the start to the goal cell.\
-Please ensure that the _<filename>_ includes the ".txt" extension, and the <algorithm> is case-insensitive (e.g., bfs or BFS are both acceptable). If you want to test the program with other text files, please place them in the "mazes" folder.\
-If no path is found, the program will display **"No path found"**.
+## Features
+1. **Single-agent search algorithms:**
+   - Depth-First Search (DFS)
+   - Breadth-First Search (BFS)
+   - Dijkstra's Algorithm
+   - Greedy Best-First Search (GBFS)
+   - A* Search
+   - Iterative Deepening A* (IDA*)
 
-### GUI version
-Run **assign1_gui.exe** or navigate to the folder and type _.\assign1_gui.exe_ in the terminal to run it.\
-On the left is a maze with labels for each colour representing the start, the goal, the wall, the discovered cells, and the path. The ”**Load Maze**” button allows you to import a .txt file with a particular format. ”**Random Maze**” will generate a maze at random for the program.\
-When an algorithm is selected, the discovered cells will initially be drawn in grey. After locating the goal cell, an orange path will be drawn from the starting point to the target.
-![Screenshot](screenshots/capture2.png)
-![Screenshot](screenshots/capture3.png)
-The number of cells explored and the length of each algorithm’s path will be displayed in the bottom-right corner of the program.\
-**NOTE:** The program will not respond when the path is being drawn to the screen, please wait until everything has been displayed to proceed with the next action.
+2. **Multi-agent search algorithms:**
+   - Safe-Interval Path Planning (SIPP)
+   - Conflict-Based Search (CBS)
 
-# Search Algorithms' Performance Evaluation
+3. **Maze generation and manipulation:**
+   - Load Maze: Load a maze from a text file
+   - Random Maze: Generate a random maze
+   - Create Maze: Build a custom maze using a GUI
+
+## Instructions
+### Single-Agent GUI
+- **Start**: Select a search algorithm (DFS, BFS, Dijkstra, etc.) from the panel on the right.
+
+  ![Screenshot](screenshots/capture1.png)
+- **Visualize**: Once an algorithm is selected, the maze will be displayed. Explored cells will appear in grey, and the final path will be highlighted in orange after the goal is reached. The number of cells explored and the path length will be displayed at the bottom-right.
+
+  ![Screenshot](screenshots/capture2.png)
+- **Options**:
+  - **Find All Goals**: Toggle this option to find the path that visits all goals.
+
+  ![Screenshot](screenshots/capture3.png)
+
+### Multi-Agent GUI
+
+- **Start**: Select one of the multi-agent algorithms (SIPP or CBS) from the right panel.
+
+  ![Screenshot](screenshots/multi.png)
+- **Agent Movement**: Different coloured agents will move from their start cells to goal cells without colliding.
+
+  ![Screenshot](screenshots/multi_show.png)
+- **Results**: The screen will display "SUCCESS" if all agents reach their goals, or "FAIL" if a collision occurs.
+
+ ![Screenshot](screenshots/multi_fail.png)
+- **Show Paths**: Enable this option to visualize the paths taken by each agent.
+
+
+## Acknowledgements
+This project was developed as part of the AI for Games course and was inspired by implementations from various open-source projects.
+
+
+# Single Agent Search Algorithms' Performance Evaluation
 ## Experimental Setup
 In this study, my aim was to evaluate the performance of various search algorithms on 100 different mazes, generated using _Randomized Prim's Algorithm_. Each maze had a random width and height ranging from 30 to 60 cells, a start cell, and 1 to 3 randomly placed goal cells. The performance of the algorithms was assessed based on three metrics: **path length**, **explored cells**, and **execution time**.
 
